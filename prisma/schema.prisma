@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Concert {
+  id        String   @id @default(uuid())
+  name      String
+  date      DateTime
+  createdAt DateTime @default(now())
+  tickets   Ticket[]
+}
+
+model Ticket {
+  id           String   @id @default(uuid())
+  concertId    String
+  concert      Concert  @relation(fields: [concertId], references: [id], onDelete: Cascade)
+  zone         String
+  type         String
+  status       String   @default("DISPONIBLE")
+  link         String
+  pairId       String?
+  pairPosition Int?
+  createdAt    DateTime @default(now())
+}

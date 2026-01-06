@@ -1,0 +1,244 @@
+'use server';
+
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { TicketZone, TicketType, TicketStatus } from '@/types';
+
+// --- Concerts ---
+
+export async function getConcerts() {
+  try {
+    const concerts = await prisma.concert.findMany({
+      orderBy: { date: 'asc' },
+      include: {
+        tickets: true // Fetch tickets to calculate stats. For large apps, use aggregation (groupBy) separately.
+      }
+    });
+    
+    return concerts.map(c => {
+      const tickets = c.tickets;
+      return {
+        id: c.id,
+        name: c.name,
+        date: c.date.toISOString().split('T')[0],
+        createdAt: c.createdAt.toISOString(),
+        stats: {
+            total: tickets.length,
+            disponibles: tickets.filter(t => t.status === TicketStatus.DISPONIBLE).length,
+            vendidos: tickets.filter(t => t.status === TicketStatus.VENDIDO).length,
+            pendientes: tickets.filter(t => t.status === TicketStatus.PENDIENTE_ENTREGA).length,
+            zonaRoja: tickets.filter(t => t.zone === TicketZone.ROJA && t.status === TicketStatus.DISPONIBLE).length,
+            zonaAzul: tickets.filter(t => t.zone === TicketZone.AZUL && t.status === TicketStatus.DISPONIBLE).length,
+        }
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching concerts:', error);
+    return [];
+  }
+}
+
+export async function createConcert(data: { name: string; date: string }) {
+  try {
+    const concert = await prisma.concert.create({
+      data: {
+        name: data.name,
+        date: new Date(data.date),
+      },
+    });
+    revalidatePath('/conciertos');
+    return { success: true, concert };
+  } catch (error) {
+    console.error('Error creating concert:', error);
+    return { success: false, error: 'Error creating concert' };
+  }
+}
+
+export async function deleteConcert(id: string) {
+  try {
+    await prisma.concert.delete({
+      where: { id },
+    });
+    revalidatePath('/conciertos');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting concert:', error);
+    return { success: false, error: 'Error deleting concert' };
+  }
+}
+
+export async function getConcertById(id: string) {
+  try {
+    const concert = await prisma.concert.findUnique({
+      where: { id },
+    });
+    if (!concert) return null;
+    return {
+      ...concert,
+      date: concert.date.toISOString().split('T')[0],
+      createdAt: concert.createdAt.toISOString(),
+    };
+  } catch (error) {
+    console.error('Error fetching concert:', error);
+    return null;
+  }
+}
+
+// --- Tickets ---
+
+export async function getTicketsByConcert(concertId: string) {
+  try {
+    const tickets = await prisma.ticket.findMany({
+      where: { concertId },
+    });
+    return tickets.map(t => ({
+      ...t,
+      // Mapping database string/enums to Typescript Enums if necessary, 
+      // but strings usually match if schema is correct.
+      zone: t.zone as TicketZone,
+      type: t.type as TicketType,
+      status: t.status as TicketStatus,
+      createdAt: t.createdAt.toISOString(),
+    }));
+  } catch (error) {
+    console.error('Error fetching tickets:', error);
+    return [];
+  }
+}
+
+export async function createTickets(
+  concertId: string,
+  zone: TicketZone,
+  type: TicketType,
+  link: string
+) {
+  try {
+    const now = new Date();
+    
+    if (type === TicketType.PAR) {
+      const pairId = crypto.randomUUID();
+      
+      // Create two tickets transactionally provided by Prisma normally, 
+      // but `createMany` is supported differently in some DBs. 
+      // Postgres supports createMany.
+      await prisma.ticket.createMany({
+        data: [
+          {
+            concertId,
+            zone,
+            type,
+            status: TicketStatus.DISPONIBLE,
+            link,
+            pairId,
+            pairPosition: 1,
+            createdAt: now,
+          },
+          {
+            concertId,
+            zone,
+            type,
+            status: TicketStatus.DISPONIBLE,
+            link,
+            pairId,
+            pairPosition: 2,
+            createdAt: now,
+          },
+        ],
+      });
+    } else {
+      await prisma.ticket.create({
+        data: {
+          concertId,
+          zone,
+          type,
+          status: TicketStatus.DISPONIBLE,
+          link,
+          createdAt: now,
+        },
+      });
+    }
+    
+    revalidatePath(`/conciertos/${concertId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error creating tickets:', error);
+    return { success: false, error: 'Error creating tickets' };
+  }
+}
+
+export async function updateTicketStatus(id: string, status: TicketStatus) {
+  try {
+    await prisma.ticket.update({
+      where: { id },
+      data: { status },
+    });
+    revalidatePath('/conciertos/[id]'); // We might need the specific path or simply revalidate layout
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating ticket:', error);
+    return { success: false, error: 'Error updating ticket' };
+  }
+}
+
+export async function deleteTicket(id: string) {
+  try {
+    await prisma.ticket.delete({
+      where: { id },
+    });
+    revalidatePath('/conciertos/[id]');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting ticket:', error);
+    return { success: false, error: 'Error deleting ticket' };
+  }
+}
+
+export async function getGlobalStats() {
+   try {
+    // We can do an aggregate query for performance, but simple logic for now mimics previous one
+    // Actually, `groupBy` is better.
+    // But let's fetch essential data or count.
+    
+    const [total, disponibles, vendidos, pendientes, zonaRoja, zonaAzul, unitarios, pares] = await Promise.all([
+        prisma.ticket.count(),
+        prisma.ticket.count({ where: { status: TicketStatus.DISPONIBLE } }),
+        prisma.ticket.count({ where: { status: TicketStatus.VENDIDO } }),
+        prisma.ticket.count({ where: { status: TicketStatus.PENDIENTE_ENTREGA } }),
+        prisma.ticket.count({ where: { zone: TicketZone.ROJA, status: TicketStatus.DISPONIBLE } }),
+        prisma.ticket.count({ where: { zone: TicketZone.AZUL, status: TicketStatus.DISPONIBLE } }),
+        prisma.ticket.count({ where: { type: TicketType.UNITARIO } }),
+        prisma.ticket.count({ where: { type: TicketType.PAR } }),
+    ]);
+
+    return {
+      total,
+      disponibles,
+      vendidos,
+      pendientes,
+      zonaRoja,
+      zonaAzul,
+      unitarios,
+      pares,
+    };
+   } catch (error) {
+     console.error("Error getting global stats", error);
+     return {
+         total: 0, disponibles: 0, vendidos: 0, pendientes: 0, zonaRoja: 0, zonaAzul: 0, unitarios: 0, pares: 0
+     }
+   }
+}
+
+export async function getTicketStats(concertId: string) {
+    try {
+        const [total, disponibles, vendidos, pendientes] = await Promise.all([
+            prisma.ticket.count({ where: { concertId } }),
+            prisma.ticket.count({ where: { concertId, status: TicketStatus.DISPONIBLE } }),
+            prisma.ticket.count({ where: { concertId, status: TicketStatus.VENDIDO } }),
+            prisma.ticket.count({ where: { concertId, status: TicketStatus.PENDIENTE_ENTREGA } }),
+        ]);
+        return { total, disponibles, vendidos, pendientes };
+    } catch (error) {
+         console.error("Error getting stats", error);
+         return { total: 0, disponibles: 0, vendidos: 0, pendientes: 0 };
+    }
+}
