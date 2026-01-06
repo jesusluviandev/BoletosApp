@@ -31,7 +31,7 @@ export function TicketForm({ concertId }: TicketFormProps) {
         toast.success(`✅ ${totalTickets} boleto(s) creado(s) exitosamente`);
         setLink('');
       } else {
-        toast.error('Error al crear boletos');
+        toast.error(result.error || 'Error al crear boletos');
       }
     }
   };
