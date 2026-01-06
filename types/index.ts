@@ -8,8 +8,7 @@ export enum LoginMethod {
 export interface Account {
   id: string;
   email: string;
-  password?: string; // Optional - only for PASSWORD login method
-  phone: string;
+  phone?: string | null;
   loginMethod: LoginMethod;
   createdAt: string;
 }

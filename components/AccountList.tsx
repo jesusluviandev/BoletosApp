@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Account, LoginMethod } from '@/types';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -14,20 +13,6 @@ interface AccountListProps {
 }
 
 export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
-  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
-
-  const togglePasswordVisibility = (accountId: string) => {
-    setVisiblePasswords(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(accountId)) {
-        newSet.delete(accountId);
-      } else {
-        newSet.add(accountId);
-      }
-      return newSet;
-    });
-  };
-
   const copyToClipboard = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -52,7 +37,6 @@ export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
   return (
     <div className="space-y-4">
       {accounts.map((account) => {
-        const isPasswordVisible = visiblePasswords.has(account.id);
         const isPasswordLogin = account.loginMethod === LoginMethod.PASSWORD;
 
         return (
@@ -73,48 +57,16 @@ export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
                             ? 'bg-blue-100 text-blue-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {isPasswordLogin ? '🔑 Contraseña' : '🔵 Google'}
+                          {isPasswordLogin ? '🔑 Contraseña/Otro' : '🔵 Google'}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600">📱 {account.phone}</p>
+                      <p className="text-sm text-gray-600">📱 {account.phone || 'Sin teléfono'}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Password section (only for password login) */}
-                {isPasswordLogin && account.password && (
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <label className="text-xs font-medium text-gray-600 block mb-1">
-                          Contraseña
-                        </label>
-                        <p className="text-sm text-gray-800 font-mono break-all">
-                          {isPasswordVisible ? account.password : '••••••••'}
-                        </p>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => togglePasswordVisibility(account.id)}
-                          className="p-2 hover:bg-gray-200 rounded transition-colors"
-                          title={isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                        >
-                          {isPasswordVisible ? '👁️' : '👁️‍🗨️'}
-                        </button>
-                        <button
-                          onClick={() => copyToClipboard(account.password!, 'Contraseña')}
-                          className="p-2 hover:bg-gray-200 rounded transition-colors"
-                          title="Copiar contraseña"
-                        >
-                          📋
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* Action buttons */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   <Button
                     variant="secondary"
                     size="sm"
@@ -142,7 +94,6 @@ export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
                       
                       if (confirmed) {
                         onDelete(account.id);
-                        toast.success('🗑️ Cuenta eliminada');
                       }
                     }}
                   >

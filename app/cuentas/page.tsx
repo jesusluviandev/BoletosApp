@@ -1,48 +1,10 @@
-'use client';
+import { getAccounts } from '@/app/actions';
+import { AccountManager } from '@/components/AccountManager';
 
-import { useState } from 'react';
-import { useAccounts } from '@/hooks/useAccounts';
-import { AccountForm } from '@/components/AccountForm';
-import { AccountList } from '@/components/AccountList';
-import { Account, LoginMethod } from '@/types';
-import toast from 'react-hot-toast';
+export const dynamic = 'force-dynamic';
 
-export default function CuentasPage() {
-  const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-
-  const handleAddAccount = (data: { 
-    email: string; 
-    password?: string; 
-    phone: string;
-    loginMethod: LoginMethod;
-  }) => {
-    addAccount(data);
-    toast.success('✅ Cuenta creada exitosamente');
-  };
-
-  const handleUpdateAccount = (data: { 
-    email: string; 
-    password?: string; 
-    phone: string;
-    loginMethod: LoginMethod;
-  }) => {
-    if (editingAccount) {
-      updateAccount(editingAccount.id, data);
-      toast.success('✅ Cuenta actualizada exitosamente');
-      setEditingAccount(null);
-    }
-  };
-
-  const handleEditAccount = (account: Account) => {
-    setEditingAccount(account);
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingAccount(null);
-  };
+export default async function CuentasPage() {
+  const accounts = await getAccounts();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -56,24 +18,7 @@ export default function CuentasPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 animate-slide-up">
-            <AccountForm 
-              onSubmit={editingAccount ? handleUpdateAccount : handleAddAccount}
-              initialData={editingAccount || undefined}
-              submitLabel={editingAccount ? 'Actualizar Cuenta' : 'Crear Cuenta'}
-              onCancel={editingAccount ? handleCancelEdit : undefined}
-            />
-          </div>
-
-          <div className="lg:col-span-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <AccountList 
-              accounts={accounts} 
-              onDelete={deleteAccount}
-              onEdit={handleEditAccount}
-            />
-          </div>
-        </div>
+        <AccountManager accounts={accounts} />
       </div>
     </div>
   );

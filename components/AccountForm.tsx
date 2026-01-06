@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -10,14 +10,12 @@ import { LoginMethod } from '@/types';
 interface AccountFormProps {
   onSubmit: (data: { 
     email: string; 
-    password?: string; 
-    phone: string;
+    phone?: string;
     loginMethod: LoginMethod;
   }) => void;
   initialData?: { 
     email: string; 
-    password?: string; 
-    phone: string;
+    phone?: string | null;
     loginMethod: LoginMethod;
   };
   submitLabel?: string;
@@ -31,31 +29,36 @@ export function AccountForm({
   onCancel 
 }: AccountFormProps) {
   const [email, setEmail] = useState(initialData?.email || '');
-  const [password, setPassword] = useState(initialData?.password || '');
   const [phone, setPhone] = useState(initialData?.phone || '');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>(
     initialData?.loginMethod || LoginMethod.PASSWORD
   );
-  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setEmail(initialData.email);
+      setPhone(initialData.phone || '');
+      setLoginMethod(initialData.loginMethod);
+    } else {
+      setEmail('');
+      setPhone('');
+      setLoginMethod(LoginMethod.PASSWORD);
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!email || !phone) return;
-    if (loginMethod === LoginMethod.PASSWORD && !password) return;
+    if (!email) return;
 
     onSubmit({ 
       email, 
-      password: loginMethod === LoginMethod.PASSWORD ? password : undefined,
       phone,
       loginMethod
     });
     
-    // Reset form if not editing
     if (!initialData) {
       setEmail('');
-      setPassword('');
       setPhone('');
       setLoginMethod(LoginMethod.PASSWORD);
     }
@@ -93,7 +96,7 @@ export function AccountForm({
                   onChange={(e) => setLoginMethod(e.target.value as LoginMethod)}
                   className="w-4 h-4 text-primary-500 focus:ring-primary-500"
                 />
-                <span className="text-gray-700">🔑 Contraseña</span>
+                <span className="text-gray-700">🔑 Contraseña/Otro</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
@@ -109,34 +112,12 @@ export function AccountForm({
             </div>
           </div>
 
-          {loginMethod === LoginMethod.PASSWORD && (
-            <div className="relative">
-              <Input
-                label="Contraseña"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 transition-colors"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
-              </button>
-            </div>
-          )}
-
           <Input
-            label="Teléfono"
+            label="Teléfono (Opcional)"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+52 123 456 7890"
-            required
           />
 
           <div className="flex gap-2">

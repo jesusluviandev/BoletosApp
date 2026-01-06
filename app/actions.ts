@@ -15,7 +15,7 @@ export async function getConcerts() {
       }
     });
     
-    return concerts.map(c => {
+    return concerts.map((c: any) => {
       const tickets = c.tickets;
       return {
         id: c.id,
@@ -24,11 +24,11 @@ export async function getConcerts() {
         createdAt: c.createdAt.toISOString(),
         stats: {
             total: tickets.length,
-            disponibles: tickets.filter(t => t.status === TicketStatus.DISPONIBLE).length,
-            vendidos: tickets.filter(t => t.status === TicketStatus.VENDIDO).length,
-            pendientes: tickets.filter(t => t.status === TicketStatus.PENDIENTE_ENTREGA).length,
-            zonaRoja: tickets.filter(t => t.zone === TicketZone.ROJA && t.status === TicketStatus.DISPONIBLE).length,
-            zonaAzul: tickets.filter(t => t.zone === TicketZone.AZUL && t.status === TicketStatus.DISPONIBLE).length,
+            disponibles: tickets.filter((t: any) => t.status === TicketStatus.DISPONIBLE).length,
+            vendidos: tickets.filter((t: any) => t.status === TicketStatus.VENDIDO).length,
+            pendientes: tickets.filter((t: any) => t.status === TicketStatus.PENDIENTE_ENTREGA).length,
+            zonaRoja: tickets.filter((t: any) => t.zone === TicketZone.ROJA && t.status === TicketStatus.DISPONIBLE).length,
+            zonaAzul: tickets.filter((t: any) => t.zone === TicketZone.AZUL && t.status === TicketStatus.DISPONIBLE).length,
         }
       };
     });
@@ -91,7 +91,7 @@ export async function getTicketsByConcert(concertId: string) {
     const tickets = await prisma.ticket.findMany({
       where: { concertId },
     });
-    return tickets.map(t => ({
+    return tickets.map((t: any) => ({
       ...t,
       // Mapping database string/enums to Typescript Enums if necessary, 
       // but strings usually match if schema is correct.
@@ -190,6 +190,72 @@ export async function deleteTicket(id: string) {
   } catch (error) {
     console.error('Error deleting ticket:', error);
     return { success: false, error: 'Error deleting ticket' };
+  }
+}
+
+// --- Accounts ---
+
+export async function getAccounts() {
+  try {
+    const accounts = await prisma.account.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return accounts.map((a: any) => ({
+      ...a,
+      loginMethod: a.loginMethod as any, // Cast to enum or string
+      createdAt: a.createdAt.toISOString(),
+    }));
+  } catch (error) {
+    console.error('Error fetching accounts:', error);
+    return [];
+  }
+}
+
+export async function createAccount(data: { email: string; phone?: string; loginMethod: string }) {
+  try {
+    await prisma.account.create({
+      data: {
+        email: data.email,
+        phone: data.phone || null,
+        loginMethod: data.loginMethod,
+      },
+    });
+    revalidatePath('/cuentas');
+    return { success: true };
+  } catch (error) {
+    console.error('Error creating account:', error);
+    return { success: false, error: 'Error creating account' };
+  }
+}
+
+export async function updateAccount(id: string, data: { email: string; phone?: string; loginMethod: string }) {
+  try {
+    await prisma.account.update({
+      where: { id },
+      data: {
+        email: data.email,
+        phone: data.phone || null,
+        loginMethod: data.loginMethod,
+      },
+    });
+    revalidatePath('/cuentas');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating account:', error);
+    return { success: false, error: 'Error updating account' };
+  }
+}
+
+export async function deleteAccount(id: string) {
+  try {
+    await prisma.account.delete({
+      where: { id },
+    });
+    revalidatePath('/cuentas');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    return { success: false, error: 'Error deleting account' };
   }
 }
 
