@@ -58,7 +58,7 @@ export interface Ticket {
   status: TicketStatus;
   link: string; // URL del boleto (obligatorio)
   pairId?: string | null; // ID del par al que pertenece (si es tipo PAR)
-  pairPosition?: 1 | 2 | null; // Posición dentro del par (1 o 2)
+  pairPosition?: number | null; // Posición dentro del par (1 o 2)
   createdAt: string;
 }
 
