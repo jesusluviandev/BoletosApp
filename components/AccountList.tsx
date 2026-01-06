@@ -49,10 +49,10 @@ export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-accent-400 flex items-center justify-center text-white font-bold text-lg">
                       {account.email.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-800">{account.email}</h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <div className="flex-1 min-w-0"> {/* min-w-0 ensures truncation works */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-800 truncate">{account.email}</h3>
+                        <span className={`self-start sm:self-auto px-2 py-1 rounded-full text-xs font-medium ${
                           isPasswordLogin 
                             ? 'bg-blue-100 text-blue-800' 
                             : 'bg-red-100 text-red-800'
