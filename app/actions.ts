@@ -178,6 +178,19 @@ export async function createTickets(
   link: string
 ) {
   try {
+    // Check for duplicate link
+    const existingTicket = await prisma.ticket.findFirst({
+      where: { link },
+      include: { concert: true }
+    });
+
+    if (existingTicket) {
+      return { 
+        success: false, 
+        error: `Este link ya existe en el concierto "${existingTicket.concert.name}"` 
+      };
+    }
+
     const now = new Date();
     
     if (type === TicketType.PAR) {
