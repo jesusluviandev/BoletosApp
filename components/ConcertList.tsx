@@ -73,44 +73,42 @@ export function ConcertList({ concerts }: ConcertListProps) {
               </div>
 
               {/* Estadísticas del concierto */}
-              {stats.total > 0 && (
-                <div className="bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-200">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="text-center">
-                      <p className="font-bold text-lg text-gray-800">{stats.total}</p>
-                      <p className="text-gray-600">Total</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold text-lg text-green-600">{stats.disponibles}</p>
-                      <p className="text-gray-600">Disponibles</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold text-lg text-blue-600">{stats.vendidos}</p>
-                      <p className="text-gray-600">Vendidos</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold text-lg text-yellow-600">{stats.pendientes}</p>
-                      <p className="text-gray-600">Pendientes</p>
-                    </div>
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-200">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-center">
+                    <p className="font-bold text-lg text-gray-800">{stats.total}</p>
+                    <p className="text-gray-600">Total</p>
                   </div>
-                  
-                  {/* Desglose por zona */}
-                  <div className="pt-2 border-t border-gray-300">
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center justify-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span className="font-semibold text-gray-700">{stats.zonaRoja}</span>
-                        <span className="text-gray-600">Roja</span>
-                      </div>
-                      <div className="flex items-center justify-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="font-semibold text-gray-700">{stats.zonaAzul}</span>
-                        <span className="text-gray-600">Azul</span>
-                      </div>
+                  <div className="text-center">
+                    <p className="font-bold text-lg text-green-600">{stats.disponibles}</p>
+                    <p className="text-gray-600">Disponibles</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-lg text-blue-600">{stats.vendidos}</p>
+                    <p className="text-gray-600">Vendidos</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-lg text-yellow-600">{stats.pendientes}</p>
+                    <p className="text-gray-600">Pendientes</p>
+                  </div>
+                </div>
+                
+                {/* Desglose por zona */}
+                <div className="pt-2 border-t border-gray-300">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center justify-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      <span className="font-semibold text-gray-700">{stats.zonaRoja}</span>
+                      <span className="text-gray-600">Roja</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="font-semibold text-gray-700">{stats.zonaAzul}</span>
+                      <span className="text-gray-600">Azul</span>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
               <div className="flex space-x-2">
                 <Link href={`/conciertos/${concert.id}`} className="flex-1">

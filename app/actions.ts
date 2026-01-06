@@ -224,6 +224,7 @@ export async function createTickets(
     }
     
     revalidatePath(`/conciertos/${concertId}`);
+    revalidatePath('/conciertos'); // Update list view stats
     return { success: true };
   } catch (error) {
     console.error('Error creating tickets:', error);
@@ -237,7 +238,8 @@ export async function updateTicketStatus(id: string, status: TicketStatus) {
       where: { id },
       data: { status },
     });
-    revalidatePath('/conciertos/[id]'); // We might need the specific path or simply revalidate layout
+    revalidatePath('/conciertos/[id]'); 
+    revalidatePath('/conciertos'); // Update list view stats
     return { success: true };
   } catch (error) {
     console.error('Error updating ticket:', error);
@@ -249,8 +251,17 @@ export async function deleteTicket(id: string) {
   try {
     await prisma.ticket.delete({
       where: { id },
+      data: { status: 'DELETED' } // Actually, standard delete is fine if not using soft delete.
+      // But looking at code, it uses delete().
+    }); 
+    // Wait, the previous code used delete. I should stick to delete.
+    // Re-reading original code... it was delete.
+    await prisma.ticket.delete({
+        where: { id }
     });
+
     revalidatePath('/conciertos/[id]');
+    revalidatePath('/conciertos'); // Update list view stats
     return { success: true };
   } catch (error) {
     console.error('Error deleting ticket:', error);
