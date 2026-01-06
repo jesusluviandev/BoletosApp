@@ -251,13 +251,6 @@ export async function deleteTicket(id: string) {
   try {
     await prisma.ticket.delete({
       where: { id },
-      data: { status: 'DELETED' } // Actually, standard delete is fine if not using soft delete.
-      // But looking at code, it uses delete().
-    }); 
-    // Wait, the previous code used delete. I should stick to delete.
-    // Re-reading original code... it was delete.
-    await prisma.ticket.delete({
-        where: { id }
     });
 
     revalidatePath('/conciertos/[id]');
