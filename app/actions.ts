@@ -3,6 +3,71 @@
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { TicketZone, TicketType, TicketStatus } from '@/types';
+import { signToken } from '@/lib/auth';
+import { cookies } from 'next/headers';
+import bcrypt from 'bcryptjs';
+import { redirect } from 'next/navigation';
+
+// --- Auth ---
+
+export async function login(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  try {
+    let admin = await prisma.admin.findUnique({ where: { email } });
+
+    // Auto-seed: If no admin exists at all, or if this specific email is missing but matches default
+    // For safety, let's only auto-seed if the Admin table is COMPLETELY empty to avoid overwrites.
+    if (!admin) {
+        const count = await prisma.admin.count();
+        if (count === 0 && email === 'usuario@boletos.com' && password === 'BoletoApp2026?.') {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            admin = await prisma.admin.create({
+                data: {
+                    email,
+                    password: hashedPassword
+                }
+            });
+            console.log("Admin auto-seeded.");
+        }
+    }
+
+    if (!admin) {
+      return { success: false, error: 'Credenciales inválidas' };
+    }
+
+    const passwordsMatch = await bcrypt.compare(password, admin.password);
+    if (!passwordsMatch) {
+      return { success: false, error: 'Credenciales inválidas' };
+    }
+
+    // CREATE SESSION
+    const token = await signToken({ id: admin.id, email: admin.email });
+    
+    // Set Cookie
+    const cookieStore = await cookies();
+    cookieStore.set('session', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24, // 1 day
+        path: '/',
+    });
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Login error:', error);
+    return { success: false, error: 'Ocurrió un error al iniciar sesión' };
+  }
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete('session');
+  redirect('/login');
+}
 
 // --- Concerts ---
 

@@ -40,6 +40,19 @@ export function Navigation() {
               })}
             </div>
           </div>
+          <button 
+            onClick={async () => {
+                await fetch('/api/auth/logout', { method: 'POST' }); // Or call server action via wrapper
+                // Since actions are direct, let's use a smallclient wrapper or just import
+                // But we cannot import server action in client component directly if unused properly? 
+                // We fan import it.
+                const { logout } = await import('@/app/actions');
+                await logout();
+            }}
+            className="text-white/80 hover:text-white font-medium px-4 py-2 hover:bg-white/10 rounded-lg transition-all"
+          >
+            Cerrar Sesión
+          </button>
         </div>
       </div>
     </nav>
