@@ -1,16 +1,15 @@
-'use client';
-
-import { useAccounts } from '@/hooks/useAccounts';
-import { useConcerts } from '@/hooks/useConcerts';
-import { useTickets } from '@/hooks/useTickets';
+import { getGlobalStats, getAccounts, getConcerts } from '@/app/actions';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
-export default function Home() {
-  const { accounts } = useAccounts();
-  const { concerts } = useConcerts();
-  const { tickets } = useTickets();
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const globalStats = await getGlobalStats();
+  const accounts = await getAccounts();
+  const concerts = await getConcerts(); // Although getGlobalStats returns totals, existing code used total tickets.
+  // We can get counts implicitly or just use lengths.
 
   const stats = [
     {
@@ -29,7 +28,7 @@ export default function Home() {
     },
     {
       label: 'Total de Boletos',
-      value: tickets.length,
+      value: globalStats.total,
       icon: '🎫',
       color: 'from-pink-500 to-pink-600',
       link: '/conciertos',
