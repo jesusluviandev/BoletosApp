@@ -14,11 +14,13 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
   const [visibleAccounts, setVisibleAccounts] = useState<Set<string>>(
     new Set(accounts.map(acc => acc.id))
   );
+  const [copiedEmails, setCopiedEmails] = useState<Set<string>>(new Set());
 
-  const copyToClipboard = async (text: string, label: string) => {
+  const copyToClipboard = async (text: string, label: string, accountId: string) => {
     try {
       await navigator.clipboard.writeText(text);
       toast.success(`📋 ${label} copiado al portapapeles`);
+      setCopiedEmails(prev => new Set(prev).add(accountId));
     } catch (error) {
       toast.error('Error al copiar');
     }
@@ -33,7 +35,19 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
     toast.success('✅ Cuenta marcada como lista');
   };
 
-  const filteredAccounts = accounts.filter(acc => visibleAccounts.has(acc.id));
+  // Filter and sort accounts: password accounts first, then Google accounts
+  const filteredAccounts = accounts
+    .filter(acc => visibleAccounts.has(acc.id))
+    .sort((a, b) => {
+      // Password accounts (LoginMethod.PASSWORD) come first
+      if (a.loginMethod === LoginMethod.PASSWORD && b.loginMethod !== LoginMethod.PASSWORD) {
+        return -1;
+      }
+      if (a.loginMethod !== LoginMethod.PASSWORD && b.loginMethod === LoginMethod.PASSWORD) {
+        return 1;
+      }
+      return 0;
+    });
 
   if (filteredAccounts.length === 0) {
     return (
@@ -69,6 +83,7 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
 
       {filteredAccounts.map((account) => {
         const isPasswordLogin = account.loginMethod === LoginMethod.PASSWORD;
+        const hasBeenCopied = copiedEmails.has(account.id);
 
         return (
           <Card key={account.id} hover>
@@ -83,13 +98,20 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
                     <h3 className="font-semibold text-gray-800 truncate mb-1">
                       {account.email}
                     </h3>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      isPasswordLogin 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {isPasswordLogin ? '🔑 Contraseña/Otro' : '🔵 Google'}
-                    </span>
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        isPasswordLogin 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {isPasswordLogin ? '🔑 Contraseña/Otro' : '🔵 Google'}
+                      </span>
+                      {hasBeenCopied && (
+                        <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ✓ Ya haz copiado este correo previamente
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -98,7 +120,7 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => copyToClipboard(account.email, 'Email')}
+                    onClick={() => copyToClipboard(account.email, 'Email', account.id)}
                   >
                     📧 Copiar
                   </Button>
