@@ -71,8 +71,8 @@ export function AccountManager({ accounts }: AccountManagerProps) {
           onClick={() => setIsPurchaseMode(!isPurchaseMode)}
           className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
             isPurchaseMode
-              ? 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
-              : 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
+              ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
+              : 'bg-gradient-to-r from-gray-900 to-black text-white'
           }`}
         >
           {isPurchaseMode ? '🔙 Volver a Gestión Normal' : '🛒 Modo Compra de Boletos'}

@@ -10,8 +10,8 @@ export function Card({ children, className = '', hover = false }: CardProps) {
   return (
     <div
       className={`
-        bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50
-        ${hover ? 'hover:shadow-xl hover:scale-[1.02] transition-all duration-300' : ''}
+        bg-white rounded-xl shadow-md border border-gray-200
+        ${hover ? 'hover:shadow-xl hover:border-gray-300 transition-all duration-300' : ''}
         ${className}
       `}
     >
@@ -27,7 +27,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className = '' }: CardHeaderProps) {
   return (
-    <div className={`px-6 py-4 border-b border-gray-200/50 ${className}`}>
+    <div className={`px-6 py-4 border-b border-gray-200 ${className}`}>
       {children}
     </div>
   );
@@ -49,7 +49,7 @@ interface CardFooterProps {
 
 export function CardFooter({ children, className = '' }: CardFooterProps) {
   return (
-    <div className={`px-6 py-4 border-t border-gray-200/50 bg-gray-50/50 rounded-b-xl ${className}`}>
+    <div className={`px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl ${className}`}>
       {children}
     </div>
   );

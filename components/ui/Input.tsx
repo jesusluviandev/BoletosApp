@@ -16,10 +16,10 @@ export function Input({ label, error, className = '', ...props }: InputProps) {
       <input
         className={`
           w-full px-4 py-2 rounded-lg border
-          ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-primary-500'}
+          ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-gray-400'}
           focus:outline-none focus:ring-2 focus:border-transparent
           transition-all duration-200
-          bg-white/50 backdrop-blur-sm
+          bg-white
           ${className}
         `}
         {...props}

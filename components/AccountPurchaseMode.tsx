@@ -69,11 +69,11 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-gradient-to-r from-primary-500 to-accent-500 text-white p-4 rounded-lg shadow-lg">
+      <div className="bg-gradient-to-r from-gray-900 to-black text-white p-4 rounded-lg shadow-xl border border-gray-800">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold">🎫 Modo Compra de Boletos</h2>
-            <p className="text-sm opacity-90 mt-1">
+            <p className="text-sm text-gray-300 mt-1">
               Cuentas disponibles: {filteredAccounts.length}
             </p>
           </div>
@@ -91,7 +91,7 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
               <div className="flex items-center justify-between gap-4">
                 {/* Account Info */}
                 <div className="flex items-center space-x-3 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-accent-400 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 shadow-md">
                     {account.email.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -101,13 +101,13 @@ export function AccountPurchaseMode({ accounts }: AccountPurchaseModeProps) {
                     <div className="flex flex-wrap gap-2 items-center">
                       <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
                         isPasswordLogin 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-gray-200 text-gray-800 border border-gray-300' 
+                          : 'bg-gray-100 text-gray-700 border border-gray-200'
                       }`}>
                         {isPasswordLogin ? '🔑 Contraseña/Otro' : '🔵 Google'}
                       </span>
                       {hasBeenCopied && (
-                        <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-gray-800 text-white border border-gray-700">
                           ✓ Ya haz copiado este correo previamente
                         </span>
                       )}
