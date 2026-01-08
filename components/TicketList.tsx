@@ -51,18 +51,18 @@ export function TicketList({ tickets }: TicketListProps) {
   const getStatusColor = (status: TicketStatus) => {
     switch (status) {
       case TicketStatus.DISPONIBLE:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-green-100 text-green-800 border-green-300';
       case TicketStatus.VENDIDO:
-        return 'bg-gray-800 text-white border-gray-700';
+        return 'bg-blue-100 text-blue-800 border-blue-300';
       case TicketStatus.PENDIENTE_ENTREGA:
-        return 'bg-gray-300 text-gray-900 border-gray-400';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getZoneColor = (zone: string) => {
-    return zone === 'ROJA' ? 'bg-gray-700' : 'bg-gray-500';
+    return zone === 'ROJA' ? 'bg-red-500' : 'bg-blue-500';
   };
   
   const handleUpdateStatus = async (id: string, status: TicketStatus) => {

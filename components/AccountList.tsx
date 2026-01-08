@@ -46,7 +46,7 @@ export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
                 {/* Header with email and login method badge */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3 flex-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-accent-400 flex items-center justify-center text-white font-bold text-lg">
                       {account.email.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0"> {/* min-w-0 ensures truncation works */}
@@ -54,8 +54,8 @@ export function AccountList({ accounts, onDelete, onEdit }: AccountListProps) {
                         <h3 className="font-semibold text-gray-800 truncate">{account.email}</h3>
                         <span className={`self-start sm:self-auto px-2 py-1 rounded-full text-xs font-medium ${
                           isPasswordLogin 
-                            ? 'bg-gray-200 text-gray-800 border border-gray-300' 
-                            : 'bg-gray-100 text-gray-700 border border-gray-200'
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-red-100 text-red-800'
                         }`}>
                           {isPasswordLogin ? '🔑 Contraseña/Otro' : '🔵 Google'}
                         </span>

@@ -20,7 +20,7 @@ export function Navigation() {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-gray-900 to-black shadow-xl sticky top-0 z-50 border-b border-gray-800">
+    <nav className="bg-gradient-to-r from-primary-600 to-accent-600 shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -43,8 +43,8 @@ export function Navigation() {
                     px-4 py-2 rounded-lg font-medium transition-all duration-200
                     ${
                       isActive
-                        ? 'bg-white text-gray-900 shadow-lg'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-white/20 text-white shadow-lg'
+                        : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }
                   `}
                 >
@@ -54,7 +54,7 @@ export function Navigation() {
             })}
             <button 
               onClick={handleLogout}
-              className="text-gray-300 hover:text-white font-medium px-4 py-2 hover:bg-gray-800 rounded-lg transition-all ml-4"
+              className="text-white/80 hover:text-white font-medium px-4 py-2 hover:bg-white/10 rounded-lg transition-all ml-4"
             >
               Cerrar Sesión
             </button>
@@ -64,7 +64,7 @@ export function Navigation() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white p-2 rounded-md hover:bg-gray-800 focus:outline-none transition-colors"
+              className="text-white p-2 rounded-md hover:bg-white/10 focus:outline-none"
             >
               <svg
                 className="h-6 w-6"
@@ -95,7 +95,7 @@ export function Navigation() {
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden bg-black border-t border-gray-800 animate-slide-down">
+        <div className="md:hidden bg-primary-700/95 backdrop-blur-sm border-t border-white/10 animate-slide-down">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {links.map((link) => {
               const isActive = pathname === link.href;
@@ -105,11 +105,11 @@ export function Navigation() {
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
                   className={`
-                    block px-3 py-2 rounded-md text-base font-medium transition-colors
+                    block px-3 py-2 rounded-md text-base font-medium
                     ${
                       isActive
-                        ? 'bg-white text-gray-900'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-white/20 text-white'
+                        : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }
                   `}
                 >
@@ -119,7 +119,7 @@ export function Navigation() {
             })}
             <button
               onClick={handleLogout}
-              className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+              className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-200 hover:bg-red-500/20 hover:text-red-100"
             >
               Cerrar Sesión
             </button>
